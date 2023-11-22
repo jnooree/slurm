@@ -1584,7 +1584,7 @@ static int _pre_task_child_privileged(
 	if (reclaim_privileges(sp) < 0)
 		return SLURM_ERROR;
 
-	set_oom_adj(0); /* the tasks may be killed by OOM */
+	set_oom_adj(1000); /* the tasks may be killed by OOM */
 
 #ifndef HAVE_NATIVE_CRAY
 	if (!(step->flags & LAUNCH_NO_ALLOC)) {
