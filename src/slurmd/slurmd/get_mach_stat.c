@@ -65,6 +65,7 @@
 /* NOTE: Getting the system uptime on AIX uses completely different logic.
  * sys/sysinfo.h on AIX defines structures that conflict with Slurm code. */
 #  include <sys/sysinfo.h>
+#  include <proc/sysinfo.h>
 #endif
 
 #include <sys/utsname.h>
@@ -256,14 +257,20 @@ extern int get_free_mem(uint64_t *free_mem)
 	 * Perhaps some method below works. */
 	*free_mem = 0;
 #else
-	struct sysinfo info;
+	static pthread_mutex_t meminfo_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-	if (sysinfo(&info) < 0) {
+	if (pthread_mutex_lock(&meminfo_mutex) != 0) {
+		error ("get_free_mem: error %d trying to fetch memory info", errno);
 		*free_mem = 0;
-		return errno;
+		return 0;
 	}
 
-	*free_mem = (((uint64_t )info.freeram)*info.mem_unit)/(1024*1024);
+	meminfo();
+	*free_mem = kb_main_available / 1024;
+
+	if (pthread_mutex_unlock(&meminfo_mutex) != 0) {
+		error("get_free_mem: error %d trying to release memory info", errno);
+	}
 #endif
 	return 0;
 }
