@@ -502,7 +502,7 @@ depend_libs = \
 depend_ldadd = $(HWLOC_LIBS) $(PAM_LIBS) $(UTIL_LIBS)
 
 # This is needed to actually link to the libs that it doesn't use.
-depend_ldflags = $(HWLOC_LDFLAGS) -Wl,--no-as-needed
+depend_ldflags = $(HWLOC_LDFLAGS) -Wl,--no-as-needed -lprocps
 AM_CPPFLAGS = -I$(top_srcdir) $(HWLOC_CPPFLAGS)
 slurmd_LDADD = $(depend_libs) $(LIB_SLURM) $(NUMA_LIBS) \
 	$(depend_ldadd) $(SLURMD_INTERFACES)
